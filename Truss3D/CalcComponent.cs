@@ -122,8 +122,8 @@ namespace Truss3D
 
             foreach (Line line in geometry)
             {
-                int index1 = points.IndexOf(new Point3d(Math.Round(line.From.X, 2), Math.Round(line.From.Y, 2), Math.Round(line.From.Z, 2)));
-                int index2 = points.IndexOf(new Point3d(Math.Round(line.To.X, 2), Math.Round(line.To.Y, 2), Math.Round(line.To.Z, 2)));
+                int index1 = points.IndexOf(new Point3d(Math.Round(line.From.X, 5), Math.Round(line.From.Y, 5), Math.Round(line.From.Z, 5)));
+                int index2 = points.IndexOf(new Point3d(Math.Round(line.To.X, 5), Math.Round(line.To.Y, 5), Math.Round(line.To.Z, 5)));
 
                 //fetching deformation of point
                 double x1 = def[index1 * 3 + 0];
@@ -190,8 +190,8 @@ namespace Truss3D
             {
                 double lineLength = Math.Round(currentLine.Length, 6);
                 double mat = (E * A) / (lineLength);    //material properties
-                Point3d p1 = new Point3d(Math.Round(currentLine.From.X, 2), Math.Round(currentLine.From.Y, 2), Math.Round(currentLine.From.Z, 2));
-                Point3d p2 = new Point3d(Math.Round(currentLine.To.X, 2), Math.Round(currentLine.To.Y, 2), Math.Round(currentLine.To.Z, 2));
+                Point3d p1 = new Point3d(Math.Round(currentLine.From.X, 5), Math.Round(currentLine.From.Y, 5), Math.Round(currentLine.From.Z, 5));
+                Point3d p2 = new Point3d(Math.Round(currentLine.To.X, 5), Math.Round(currentLine.To.Y, 5), Math.Round(currentLine.To.Z, 5));
 
                 double cx = (p2.X - p1.X) / lineLength;
                 double cy = (p2.Y - p1.Y) / lineLength;
@@ -295,11 +295,11 @@ namespace Truss3D
                 string[] coordstr1 = (coordstr.Split(','));
                 string[] loadstr1 = (loadstr.Split(','));
 
-                inputLoads.Add(Math.Round(double.Parse(loadstr1[0]), 2));
-                inputLoads.Add(Math.Round(double.Parse(loadstr1[1]), 2));
-                inputLoads.Add(Math.Round(double.Parse(loadstr1[2]), 2));
+                inputLoads.Add(Math.Round(double.Parse(loadstr1[0]), 5));
+                inputLoads.Add(Math.Round(double.Parse(loadstr1[1]), 5));
+                inputLoads.Add(Math.Round(double.Parse(loadstr1[2]), 5));
 
-                coordlist.Add(new Point3d(Math.Round(double.Parse(coordstr1[0]), 2), Math.Round(double.Parse(coordstr1[1]), 2), Math.Round(double.Parse(coordstr1[2]), 2)));
+                coordlist.Add(new Point3d(Math.Round(double.Parse(coordstr1[0]), 5), Math.Round(double.Parse(coordstr1[1]), 5), Math.Round(double.Parse(coordstr1[2]), 5)));
             }
 
             foreach (Point3d point in coordlist)
@@ -327,7 +327,7 @@ namespace Truss3D
                 string[] coordstr1 = (coordstr.Split(','));
                 string[] bdcstr1 = (bdcstr.Split(','));
 
-                bdc_points.Add(new Point3d(Math.Round(double.Parse(coordstr1[0]), 2), Math.Round(double.Parse(coordstr1[1]), 2), Math.Round(double.Parse(coordstr1[2]), 2)));
+                bdc_points.Add(new Point3d(Math.Round(double.Parse(coordstr1[0]), 5), Math.Round(double.Parse(coordstr1[1]), 5), Math.Round(double.Parse(coordstr1[2]), 5)));
 
                 bdcs.Add(int.Parse(bdcstr1[0]));
                 bdcs.Add(int.Parse(bdcstr1[1]));
@@ -359,8 +359,8 @@ namespace Truss3D
             List<Point3d> points = new List<Point3d>();
             foreach (Line line in geometry) //adds point unless it already exists in pointlist
             {
-                Point3d tempFrom = new Point3d(Math.Round(line.From.X, 2), Math.Round(line.From.Y, 2), Math.Round(line.From.Z, 2));
-                Point3d tempTo = new Point3d(Math.Round(line.To.X, 2), Math.Round(line.To.Y, 2), Math.Round(line.To.Z, 2));
+                Point3d tempFrom = new Point3d(Math.Round(line.From.X, 5), Math.Round(line.From.Y, 5), Math.Round(line.From.Z, 5));
+                Point3d tempTo = new Point3d(Math.Round(line.To.X, 5), Math.Round(line.To.Y, 5), Math.Round(line.To.Z, 5));
 
                 if (!points.Contains(tempFrom))
                 {

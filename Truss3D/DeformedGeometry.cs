@@ -8,11 +8,8 @@ namespace Truss3D
 {
     public class DeformedGeometry : GH_Component
     {
-        /// <summary>
-        /// Initializes a new instance of the DeformedGeometry class.
-        /// </summary>
         public DeformedGeometry()
-          : base("DeformedGeometry", "Nickname",
+          : base("BDCComponents", "Nickname",
               "Description",
               "Koala", "Truss3D")
         {
