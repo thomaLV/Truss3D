@@ -9,16 +9,12 @@ namespace Truss3D
 {
     public class BDCComponents : GH_Component
     {
-        /// <summary>
-        /// Initializes a new instance of the BDCComponents class.
-        /// </summary>
         public BDCComponents()
           : base("BDCComponents", "Nickname",
               "Description",
               "Category", "Subcategory")
         {
         }
-
 
         protected override void RegisterInputParams(GH_Component.GH_InputParamManager pManager)
         {
