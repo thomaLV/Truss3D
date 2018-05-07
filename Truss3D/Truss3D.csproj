@@ -68,6 +68,7 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="BDCComponents.cs" />
     <Compile Include="DeformedGeometry.cs" />
     <Compile Include="Properties\Resources.Designer.cs">
       <AutoGen>True</AutoGen>
