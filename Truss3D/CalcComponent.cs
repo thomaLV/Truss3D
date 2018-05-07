@@ -6,7 +6,6 @@ using Rhino.Geometry;
 
 using MathNet.Numerics.LinearAlgebra;
 using MathNet.Numerics.LinearAlgebra.Double;
-using Truss3D.Properties;
 
 namespace Truss3D
 {
@@ -379,7 +378,7 @@ namespace Truss3D
         {
             get
             {
-                return null;
+                return Properties.Resources.Calc;
             }
         }
 
