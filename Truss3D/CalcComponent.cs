@@ -6,7 +6,6 @@ using Rhino.Geometry;
 
 using MathNet.Numerics.LinearAlgebra;
 using MathNet.Numerics.LinearAlgebra.Double;
-using MathNet.Numerics.LinearAlgebra.Factorization;
 using Truss3D.Properties;
 
 namespace Truss3D
@@ -21,9 +20,9 @@ namespace Truss3D
         /// new tabs/panels will automatically be created.
         /// </summary>
         public CalcComponent()
-          : base("Truss3DCalc", "Truss3D",
+          : base("Truss3DCalc", "TCalc",
               "Description",
-              "Koala", "Subcategory")
+              "Koala", "Truss3D")
         {
         }
 
