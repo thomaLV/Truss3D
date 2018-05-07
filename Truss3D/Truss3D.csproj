@@ -76,6 +76,7 @@
       <DependentUpon>Resources.resx</DependentUpon>
     </Compile>
     <Compile Include="CalcComponent.cs" />
+    <Compile Include="SetLoads.cs" />
     <Compile Include="Truss3DInfo.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
