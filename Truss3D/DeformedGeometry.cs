@@ -102,7 +102,7 @@ namespace Truss3D
         {
             get
             {
-                return Properties.Resources.Image1;
+                return Properties.Resources.BDC;
             }
         }
 

@@ -12,7 +12,7 @@ namespace Truss3D
         public BDCComponents()
           : base("BDCComponents", "Nickname",
               "Description",
-              "Category", "Subcategory")
+              "Koala", "Truss3D")
         {
         }
 
@@ -210,7 +210,7 @@ namespace Truss3D
         {
             get
             {
-                return Properties.Resources.Image1; //Setting component icon
+                return Properties.Resources.BDC; //Setting component icon
             }
         }
 
