@@ -45,18 +45,17 @@ namespace Truss3D
             //List all nodes (every node only once), numbering them according to list index
             List<Point3d> points = CreatePointList(geometry);
 
-            int index = 0;
             //loops through all points and scales x-, y- and z-dir
-            foreach (Point3d point in points)
+            for (int i = 0; i < points.Count; i++)
             {
                 //fetch global x,y,z placement of point
-                double x = point.X;
-                double y = point.Y;
-                double z = point.Z;
+                double x = points[i].X;
+                double y = points[i].Y;
+                double z = points[i].Z;
 
                 //scales x and z according to input Scale
-                defPoints.Add(new Point3d(x + scale * def[index], y + scale * def[index + 1], z + scale * def[index + 2]));
-                index += 3;
+                defPoints.Add(new Point3d(x + scale * def[i], y + scale * def[i + 1], z + scale * def[i + 2]));
+                i += 3;
             }
 
             //creates deformed geometry based on initial geometry placement
