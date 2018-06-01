@@ -25,12 +25,11 @@ namespace Truss3D
         {
         }
 
-
         protected override void RegisterInputParams(GH_Component.GH_InputParamManager pManager)
         {
             pManager.AddLineParameter("Lines", "LNS", "Geometry, in form of Lines)", GH_ParamAccess.list);
             pManager.AddTextParameter("Boundary Conditions", "BDC", "Boundary Conditions in form (x,z):1,1 where 1=free and 0=restrained", GH_ParamAccess.list);
-            pManager.AddNumberParameter("Crossection area", "A", "Crossectional area, initial value 10e3 [mm*mm]", GH_ParamAccess.item, 10000);
+            pManager.AddNumberParameter("Crossection area", "A", "Crossectional area, initial value 10e3 [mm*mm]", GH_ParamAccess.item, 3600);
             pManager.AddNumberParameter("Material E modulus", "E", "Material Property, initial value 210e3 [MPa]", GH_ParamAccess.item, 210000);
             pManager.AddTextParameter("Loads", "L", "Load given as Vector [N]", GH_ParamAccess.list);
         }
@@ -41,8 +40,6 @@ namespace Truss3D
             pManager.AddNumberParameter("Reactions", "R", "Reaction Forces", GH_ParamAccess.list);
             pManager.AddNumberParameter("Element stresses", "Strs", "The Stress in each element", GH_ParamAccess.list);
             pManager.AddNumberParameter("Element strains", "Strn", "The Strain in each element", GH_ParamAccess.list);
-            pManager.AddTextParameter("K_red", "K", "K_reduced-matrix print", GH_ParamAccess.item);
-            pManager.AddTextParameter("K_tot", "K", "K-matrix print", GH_ParamAccess.item);
         }
 
         protected override void SolveInstance(IGH_DataAccess DA)
@@ -68,7 +65,7 @@ namespace Truss3D
 
 
             //Interpret the BDC inputs (text) and create list of boundary condition (1/0 = free/clamped) for each dof.
-            List<int> bdc_value = CreateBDCList(bdctxt, points);
+            Vector<double> bdc_value = CreateBDCList(bdctxt, points);
 
 
             //Interpreting input load (text) and creating load list (double)
@@ -87,7 +84,7 @@ namespace Truss3D
 
             Vector<double> def_reduced;
             //Calculate deformations
-            def_reduced = K_red.Solve(load_red);
+            def_reduced = K_red.Cholesky().Solve(load_red);
 
 
             //Add the clamped dofs (= 0) to the deformations list
@@ -108,10 +105,6 @@ namespace Truss3D
             DA.SetDataList(1, reactions);
             DA.SetDataList(2, internalStresses);
             DA.SetDataList(3, internalStrains);
-            DA.SetData(4, K_red.ToString());
-            DA.SetData(5, K_tot.ToString());
-            //DA.SetData(6, dofs_red);    //unnecessary
-            //DA.SetDataList(7, points);  //unnecessary output
         } //End of main program
 
         private void CalculateInternalStrainsAndStresses(Vector<double> def, List<Point3d> points, double E, List<Line> geometry, out List<double> internalStresses, out List<double> internalStrains)
@@ -150,7 +143,7 @@ namespace Truss3D
             }
         }
 
-        private Vector<double> RestoreTotalDeformationVector(Vector<double> deformations_red, List<int> bdc_value)
+        private Vector<double> RestoreTotalDeformationVector(Vector<double> deformations_red, Vector<double> bdc_value)
         {
             Vector<double> def = Vector<double>.Build.Dense(bdc_value.Count);
             for (int i = 0, j = 0; i < bdc_value.Count; i++)
@@ -164,7 +157,7 @@ namespace Truss3D
             return def;
         }
 
-        private static void CreateReducedGlobalStiffnessMatrix(List<int> bdc_value, Matrix<double> K, List<double> load, out Matrix<double> K_red, out Vector<double> load_red)
+        private static void CreateReducedGlobalStiffnessMatrix(Vector<double> bdc_value, Matrix<double> K, List<double> load, out Matrix<double> K_red, out Vector<double> load_red)
         {
             K_red = Matrix<double>.Build.SparseOfMatrix(K);
             List<double> load_redu = new List<double>(load);
@@ -184,7 +177,7 @@ namespace Truss3D
         private Matrix<double> CreateGlobalStiffnessMatrix(List<Line> geometry, List<Point3d> points, double E, double A)
         {
             int gdofs = points.Count * 3;
-            Matrix<double> K_tot = SparseMatrix.OfArray(new double[gdofs, gdofs]);
+            Matrix<double> KG = SparseMatrix.OfArray(new double[gdofs, gdofs]);
 
             foreach (Line currentLine in geometry)
             {
@@ -196,29 +189,7 @@ namespace Truss3D
                 double cx = (p2.X - p1.X) / lineLength;
                 double cy = (p2.Y - p1.Y) / lineLength;
                 double cz = (p2.Z - p1.Z) / lineLength;
-
-
-
-                //Matrix<double> T = SparseMatrix.OfArray(new double[,]
-                //{
-                //    { (cx),  (cx),  (cx), 0,0,0},
-                //    { (cy),  (cy),  (cy), 0,0,0},
-                //    { (cz),  (cz),  (cz), 0,0,0},
-                //    {0,0,0, (cx),  (cx),  (cx)},
-                //    {0,0,0, (cy),  (cy),  (cy)},
-                //    {0,0,0, (cz),  (cz),  (cz)},
-                //});
-
-                //Matrix<double> K = DenseMatrix.OfArray(new double[,]
-                //                {
-                //    {   1,  0,  0,  -1,   0,   0},
-                //    {   0,  0,  0,  0,   0,   0},
-                //    {   0,  0,  0,  0,   0,   0},
-                //    {   -1,  0,  0,  1,   0,   0},
-                //    {   0,  0,  0,  0,   0,   0},
-                //    {   0,  0,  0,  0,   0,   0,}
-                //});
-
+                
                 Matrix<double> T = SparseMatrix.OfArray(new double[,]
                 {
                     { (cx),  (cy),  (cz), 0,0,0},
@@ -229,7 +200,7 @@ namespace Truss3D
                     {0,0,0, (cx),  (cy),  (cz)},
                 });
 
-                Matrix<double> K = DenseMatrix.OfArray(new double[,]
+                Matrix<double> ke = DenseMatrix.OfArray(new double[,]
                                 {
                     {   1,  0,  0,  -1,   0,   0},
                     {   0,  0,  0,  0,   0,   0},
@@ -240,45 +211,31 @@ namespace Truss3D
                 });
 
                 Matrix<double> T_T = T.Transpose();
-                Matrix<double> K_test = K.Multiply(T);
-                K_test = T_T.Multiply(K_test);
-                Matrix<double> K_elem = mat * K_test;
-
-                //Matrix<double> K_elem = SparseMatrix.OfArray(new double[,]
-                //{
-                //    { (cx*cx),  (cx*cy),  (cx*cz), -(cx*cx), -(cx*cy), -(cx*cz)},
-                //    { (cy*cx),  (cy*cy),  (cy*cz), -(cy*cx), -(cy*cy), -(cy*cz)},
-                //    { (cz*cx),  (cz*cy),  (cz*cz), -(cz*cx), -(cz*cy), -(cz*cz)},
-                //    {-(cx*cx), -(cx*cy), -(cx*cz),  (cx*cx),  (cx*cy),  (cx*cz)},
-                //    {-(cy*cx), -(cy*cy), -(cy*cz),  (cy*cx),  (cy*cy),  (cy*cz)},
-                //    {-(cz*cx), -(cz*cy), -(cz*cz),  (cz*cx),  (cz*cy),  (cz*cz)},
-                //});
-
-                //K_elem = mat * K_elem;
-
+                Matrix<double> Ke = ke.Multiply(T);
+                Ke = T_T.Multiply(Ke);
+                Ke = mat * Ke;
+                
                 int node1 = points.IndexOf(p1);
                 int node2 = points.IndexOf(p2);
-
-
-
+                
                 //Inputting values to correct entries in Global Stiffness Matrix
-                for (int i = 0; i < K_elem.RowCount / 2; i++)
+                for (int i = 0; i < Ke.RowCount / 2; i++)
                 {
 
-                    for (int j = 0; j < K_elem.ColumnCount / 2; j++)
+                    for (int j = 0; j < Ke.ColumnCount / 2; j++)
                     {
                         //top left 3x3 of k-element matrix
-                        K_tot[node1 * 3 + i, node1 * 3 + j] += K_elem[i, j];
+                        KG[node1 * 3 + i, node1 * 3 + j] += Ke[i, j];
                         //top right 3x3 of k-element matrix  
-                        K_tot[node1 * 3 + i, node2 * 3 + j] += K_elem[i, j + 3];
+                        KG[node1 * 3 + i, node2 * 3 + j] += Ke[i, j + 3];
                         //bottom left 3x3 of k-element matrix
-                        K_tot[node2 * 3 + i, node1 * 3 + j] += K_elem[i + 3, j];
+                        KG[node2 * 3 + i, node1 * 3 + j] += Ke[i + 3, j];
                         //bottom right 3x3 of k-element matrix
-                        K_tot[node2 * 3 + i, node2 * 3 + j] += K_elem[i + 3, j + 3];
+                        KG[node2 * 3 + i, node2 * 3 + j] += Ke[i + 3, j + 3];
                     }
                 }
             }
-            return K_tot;
+            return KG;
         }
 
         private List<double> CreateLoadList(List<string> loadtxt, List<Point3d> points)
@@ -313,9 +270,9 @@ namespace Truss3D
             return loads;
         }
 
-        private List<int> CreateBDCList(List<string> bdctxt, List<Point3d> points)
+        private Vector<double> CreateBDCList(List<string> bdctxt, List<Point3d> points)
         {
-            List<int> bdc_value = new List<int>(new int[points.Count * 3]);
+            Vector<double> bdc_value = Vector<double>.Build.Dense(points.Count * 3, 1);
             List<int> bdcs = new List<int>();
             List<Point3d> bdc_points = new List<Point3d>(); //Coordinates relating til bdc_value in for (eg. x y z)
 
@@ -334,22 +291,12 @@ namespace Truss3D
                 bdcs.Add(int.Parse(bdcstr1[2]));
             }
 
-            for (int i = 0; i < points.Count; i++)
+            foreach (var point in bdc_points)
             {
-                Point3d tempP = points[i];
-
-                if (bdc_points.Contains(tempP))
-                {
-                    bdc_value[i * 3 + 0] = bdcs[bdc_points.IndexOf(tempP) * 3 + 0];
-                    bdc_value[i * 3 + 1] = bdcs[bdc_points.IndexOf(tempP) * 3 + 1];
-                    bdc_value[i * 3 + 2] = bdcs[bdc_points.IndexOf(tempP) * 3 + 2];
-                }
-                else
-                {
-                    bdc_value[i * 3 + 0] = 1;
-                    bdc_value[i * 3 + 1] = 1;
-                    bdc_value[i * 3 + 2] = 1;
-                }
+                int i = points.IndexOf(point);
+                bdc_value[i * 3 + 0] = bdcs[bdc_points.IndexOf(point) * 3 + 0];
+                bdc_value[i * 3 + 1] = bdcs[bdc_points.IndexOf(point) * 3 + 1];
+                bdc_value[i * 3 + 2] = bdcs[bdc_points.IndexOf(point) * 3 + 2];
             }
             return bdc_value;
         }
