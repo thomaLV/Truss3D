@@ -82,9 +82,8 @@ namespace Truss3D
             CreateReducedGlobalStiffnessMatrix(bdc_value, K_tot, load, out K_red, out load_red);
 
 
-            Vector<double> def_reduced;
             //Calculate deformations
-            def_reduced = K_red.Cholesky().Solve(load_red);
+            Vector<double> def_reduced = K_red.Cholesky().Solve(load_red);
 
 
             //Add the clamped dofs (= 0) to the deformations list
@@ -128,10 +127,10 @@ namespace Truss3D
 
                 //new node coordinates for deformed nodes
                 double nx1 = points[index1].X + x1;
-                double ny1 = points[index1].X + y1;
+                double ny1 = points[index1].Y + y1;
                 double nz1 = points[index1].Z + z1;
                 double nx2 = points[index2].X + x2;
-                double ny2 = points[index2].X + y2;
+                double ny2 = points[index2].Y + y2;
                 double nz2 = points[index2].Z + z2;
 
                 //calculating dL = length of deformed line - original length of line
