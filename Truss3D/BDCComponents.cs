@@ -10,8 +10,8 @@ namespace Truss3D
     public class BDCComponents : GH_Component
     {
         public BDCComponents()
-          : base("BDCComponents", "Nickname",
-              "Description",
+          : base("BDC Truss", "BDC Truss",
+              "Set boundary conditions for the Truss 3D calculation",
               "Koala", "Truss3D")
         {
         }

@@ -29,8 +29,8 @@ namespace Truss3D
         {
             pManager.AddLineParameter("Lines", "LNS", "Geometry, in form of Lines)", GH_ParamAccess.list);
             pManager.AddTextParameter("Boundary Conditions", "BDC", "Boundary Conditions in form (x,z):1,1 where 1=free and 0=restrained", GH_ParamAccess.list);
-            pManager.AddNumberParameter("Crossection area", "A", "Crossectional area, initial value 10e3 [mm*mm]", GH_ParamAccess.item, 3600);
-            pManager.AddNumberParameter("Material E modulus", "E", "Material Property, initial value 210e3 [MPa]", GH_ParamAccess.item, 210000);
+            pManager.AddNumberParameter("Crossection area", "A", "Crossectional area, initial value 3600 [mm^2]", GH_ParamAccess.item, 3600);
+            pManager.AddNumberParameter("Material E modulus", "E", "Material Property, initial value 200e3 [MPa]", GH_ParamAccess.item, 200000);
             pManager.AddTextParameter("Loads", "L", "Load given as Vector [N]", GH_ParamAccess.list);
         }
 
@@ -82,9 +82,8 @@ namespace Truss3D
             CreateReducedGlobalStiffnessMatrix(bdc_value, K_tot, load, out K_red, out load_red);
 
 
-            Vector<double> def_reduced;
             //Calculate deformations
-            def_reduced = K_red.Cholesky().Solve(load_red);
+            Vector<double> def_reduced = K_red.Cholesky().Solve(load_red);
 
 
             //Add the clamped dofs (= 0) to the deformations list
@@ -129,10 +128,10 @@ namespace Truss3D
 
                 //new node coordinates for deformed nodes
                 double nx1 = points[index1].X + x1;
-                double ny1 = points[index1].X + y1;
+                double ny1 = points[index1].Y + y1;
                 double nz1 = points[index1].Z + z1;
                 double nx2 = points[index2].X + x2;
-                double ny2 = points[index2].X + y2;
+                double ny2 = points[index2].Y + y2;
                 double nz2 = points[index2].Z + z2;
 
                 //calculating dL = length of deformed line - original length of line

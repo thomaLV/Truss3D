@@ -9,7 +9,7 @@ namespace Truss3D
     public class DeformedGeometry : GH_Component
     {
         public DeformedGeometry()
-          : base("Deformed geometry", "Def.Geom",
+          : base("Deformed Truss", "Def.Truss",
               "Description",
               "Koala", "Truss3D")
         {
