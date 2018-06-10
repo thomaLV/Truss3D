@@ -93,6 +93,7 @@ namespace Truss3D
 
             //Calculate the reaction forces from the deformations
             Vector<double> reactions = K_tot.Multiply(def_tot);
+            reactions.CoerceZero(1e-8);
 
 
             List<double> internalStresses;
